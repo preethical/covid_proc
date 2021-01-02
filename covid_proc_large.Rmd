@@ -18,11 +18,15 @@ The files results_all_records_x were scrapped from the Mission Mode Portal over 
 These files contain "Sno", "e_published date", "Award of contract date" "Title and Description" and "State". We will first merge the four files that were scrapped and clean them
 
 ```{r Merge}
-## read the csvs as a tibble for easier tidyverse stuff (especially str replace which requires it)
-results_1 <- as.tibble(read.csv("results_all_records_table.csv", row.names = NULL, stringsAsFactors = FALSE))
-results_2 <- as.tibble(read.csv("results_all_records_table_2.csv", row.names = NULL, stringsAsFactors = FALSE))
-results_3 <- as.tibble(read.csv("results_all_records_table_3.csv",row.names = NULL, stringsAsFactors = FALSE))
-results_4 <- as.tibble(read.csv("results_all_records_table_4.csv",row.names = NULL,  stringsAsFactors = FALSE))
+## read the csvs as a tibble for easier tidyverse stuff (especially string replace which requires it)
+results_1 <- as.tibble(read.csv("results_all_records_table.csv", row.names = NULL,
+                                stringsAsFactors = FALSE))
+results_2 <- as.tibble(read.csv("results_all_records_table_2.csv", row.names = NULL, 
+                                stringsAsFactors = FALSE))
+results_3 <- as.tibble(read.csv("results_all_records_table_3.csv",row.names = NULL, 
+                                stringsAsFactors = FALSE))
+results_4 <- as.tibble(read.csv("results_all_records_table_4.csv",row.names = NULL,  
+                                stringsAsFactors = FALSE))
 
 ## merge the four files with rbind
 results_total_merge<- rbind(results_1,results_2,results_3,results_4)
@@ -50,9 +54,11 @@ results_total_merge_clean <- results_total_merge_clean %>%
     )
 
 ## Make dates into date format
-results_total_merge_clean$award_date <- as.Date(results_total_merge_clean$award_date, format="%d-%b-%Y")
+results_total_merge_clean$award_date <- as.Date(results_total_merge_clean$award_date, 
+                                                format="%d-%b-%Y")
 
-results_total_merge_clean$Published_date <- as.Date(results_total_merge_clean$Published_date, format="%d-%b-%Y")
+results_total_merge_clean$Published_date <- as.Date(results_total_merge_clean$Published_date, 
+                                                    format="%d-%b-%Y")
 
 ##remove duplicates
 results_no_duplicates<- results_total_merge_clean [!duplicated(results_total_merge_clean[c(4,6)]),]
@@ -65,7 +71,7 @@ We can have an initial look at the data that we have cleaned so far. For example
 ```{r initial, echo=FALSE}
 ## this will produce the top ten states that have most number of procurements on mmp
 tender_number <- results_no_duplicates %>% group_by(State_name) %>% tally()
-head(tender_number)
+head(tender_number[order(tender_number$n, decreasing = TRUE),])
 
 ## Here we are creating a simple bar plot with counts for each state
 results_no_duplicates %>% ggplot(aes(x = State_name))+ 
@@ -74,7 +80,8 @@ results_no_duplicates %>% ggplot(aes(x = State_name))+
 
 #Here we have calculated the number of days between the published and awarded date
 results_no_duplicates$number_days<-
-  as.numeric(difftime (results_no_duplicates$award_date, results_no_duplicates$Published_date,units = c("days")))
+  as.numeric(difftime (results_no_duplicates$award_date, 
+                       results_no_duplicates$Published_date,units = c("days")))
 
 ## we are now trying to create a stacked box plot to see the difference in days taken
 results_no_duplicates %>% ggplot(aes(x = State_name, fill = number_days))+ 
@@ -83,7 +90,8 @@ results_no_duplicates %>% ggplot(aes(x = State_name, fill = number_days))+
 
 ## Since the variation in the other plot is so big, lets make a box plot and see how it looks
 
-results_no_duplicates %>% ggplot(aes(x=State_name, y=number_days)) + geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+results_no_duplicates %>% ggplot(aes(x=State_name, y=number_days)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
 
 ## There seems to be quite a bit of variation, so i will be identifying the outliers to eliminate
 Q <- quantile(results_no_duplicates$number_days, probs=c(.5, .9), na.rm = FALSE)
@@ -93,27 +101,55 @@ iqr <- IQR(results_no_duplicates$number_days)
 up <-  Q[2]+1.5*iqr
 down <- Q[1] - 1.5*iqr
 
-not_eliminated<- subset(results_no_duplicates, results_no_duplicates$number_days > (Q[1] - 1.5*iqr) & results_no_duplicates$number_days < (Q[2]+1.5*iqr))
+not_eliminated<- subset(results_no_duplicates, 
+                        results_no_duplicates$number_days > (Q[1] - 1.5*iqr) 
+                        & results_no_duplicates$number_days < (Q[2]+1.5*iqr))
 
 ## I will then plot the new dataset to see how it has changed
 ##outliers <- ggbetweenstats(data = results_no_duplicates, x = State_name, y=number_days, outlier.tagging = TRUE, na.rm = TRUE) 
 
-eliminated %>% ggplot(aes(x=State_name, y=number_days)) + geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+eliminated %>% ggplot(aes(x=State_name, y=number_days)) + geom_boxplot() + 
+  theme(axis.text.x = element_text(size = 6, angle = 90))
 
 ## I am seeing whats there in the eliminated (outliers)
-eliminated <- subset(results_no_duplicates, !(results_no_duplicates$number_days > (Q[1] - 1.5*iqr) & results_no_duplicates$number_days < (Q[2]+1.5*iqr)))
+eliminated <- subset(results_no_duplicates, 
+                     !(results_no_duplicates$number_days > 
+                         (Q[1] - 1.5*iqr) & results_no_duplicates$number_days < 
+                         (Q[2]+1.5*iqr)))
 
 ##I have decided to use the non-outliered dataset since, the data in the eliminated set seems important
 
 ## I am creating bins for the length of the different procurement periods according to state
 
-results_no_duplicates$day_category <- cut(results_no_duplicates$number_days, breaks = c(0, 20, 60, Inf))
+results_no_duplicates$day_category <- cut(results_no_duplicates$number_days, 
+                                          breaks = c(0, 20, 60, Inf))
 
 ## I am plotting this data using a stacked bar graph
 
-results_no_duplicates %>% ggplot(aes(x=State_name, fill = day_category)) + geom_bar() +theme(axis.text.x = element_text(size = 6, angle = 90))
+results_no_duplicates %>% ggplot(aes(x=State_name, fill = day_category)) + 
+  geom_bar() +theme(axis.text.x = element_text(size = 6, angle = 90))
 
 ```
 
-## Next I will create smaller datasets for specific usecases
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Next I will create smaller datasets for specific usecases. The following is a table for words related to health and covid. Isolating all procurements associated with the keywords will give us a subset of health and covid related procurements. (Note: while health is a general enough term, I have taken caution not to include sanitation under this. Health in this case will only comprise of acute/chronic hospital related procurements not general sanitation or food/nutrition)
+
+```{r pattern, echo=FALSE}
+patterns <- c("Medical", "Hospital", "PHC", "CHC", "Health", "covid", "COVID", "medicine", "drugs", "liquid", "ambulance",  "microscope", "chemistry", "radiograph", "biomedical", "lab", "laboratory", "dispensary", "Anganwadi", "DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP", "crematorium", "DNASTAR","mortem", "paediatric", "HWC", "MCH", "Smashanbhumi", "Shmashanbhumi", "smashan bhumi", "OPD", "HFW", "ICDS", "RT-PCR", "corona", "anganwari", "NHM", "TCL", "Advia", "Oxygen", "HCG", "AWC","DGPCS")
+
+newtable <- not_eliminated %>% 
+  filter_all(any_vars(str_detect(., paste(patterns, collapse = "|"))))
+
+state_tenders<- newtable %>% group_by(State_name) %>% tally()
+head(state_tenders[order(state_tenders$n, decreasing = TRUE),])
+
+newtable %>% ggplot(aes(x = State_name))+ 
+  geom_bar ()+
+  theme(axis.text.x = element_text(size = 6, angle = 90))
+
+newtable %>% ggplot(aes(x=State_name, y=number_days)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+newtable %>% ggplot(aes(x=State_name, fill = day_category)) + 
+  geom_bar() +theme(axis.text.x = element_text(size = 6, angle = 90))
+```
+
