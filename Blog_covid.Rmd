@@ -1,0 +1,35 @@
+---
+title: "Blog_covid"
+author: "Preethi G"
+date: "15/01/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Covid Blog
+
+In an attempt to create soem standardization across different platforms within the National eGovernance Platforms (NeGP), Ministry of Electronics and Information Technology, MeitY collated a list of mission mode projects which on one specific aspect of electronic governance like health, education etc. eProcurements is one such MMP in an attempt to simplify, digitize eprocurements and create more transparency. The Standing  Finance  Committee  decided that the Government  eProcurement  Solution  of National  Informatics  Centre  (GePNIC) platform would  be  used as  National  eProcurement  Portal  for rollout in 23 States and UTs over two years. The National  Informatics Centre (NIC) was been given the   responsibility for setting up this ccommon portal for dissemination of Information. The GePNIC system was created in 2007 and even now not all states have moved to it (There are 5 states/UTs that still have different tendering systems). Further not all procurements get published publicly. Most states have their own standards for when to publish a procurement online. For example: many states don't publish procurements less than 5 lakh rupees. This would account for almost 40% of the tenders in many states. All of this coupled with no standards on the data that is actually published makes analyzing this data very difficult. And Analyzing this data becomes exceptionally important when faced with a massive global health crisis on stretched resources and very diverse needs. 
+
+Which is exactly what happened about one year ago, when the first COVID-19 case was identified in Kerala. In three months the country would go into a complete lockdown and attempt to spend the ~1.5% of its GDP allocated toward health in the most efficient manner. This is a small study analyzing the public procurements during that time. We scrapped the awards data from the mission mode portal (which is portal published by the Indian Government which reconciles all the state eprocurements that are on the GePNIC platform)
+Suprisingly there were fewer public procurements floated for the year 2020 compared to the years before. 
+(insert graph). 
+Intererstingly, as soon as the country went into a lock-down in March, there was a huge increase in the number of tenders floated compared to the year before and this kept up until May when the lockdown was lifted.
+(Insert Graph)
+Most years and over the past year more than 82% of the total tenders floated are for works like construction and maintenance. This is likely because tenders for construction tend to be large and therefore more likely to pass the minimum required amount before it must be published online.
+(Insert Graph)
+However more than half of the 10 most expensive tenders awarded this past year were for distribution of alcohol 
+(Insert Table/ Figure)
+In our analysis, we studied around 40,000 tenders which were published and awarded across the country from the 3rd of March until the end of the year (25th of December). 
+
+While Uttar Pradesh has the most number of tenders published online, last year for the time period mentioned above: Mahrashtra closely followed by Kerala had the most number of tenders awarded. 
+(Insert figure)
+
+There was a large amount of variance in the number of days that a tender was floated. For example, Mahrashtra also had the most number of tenders that were awarded 30 days after they were epublished, closely followed by Haryana, West Bengal and Uttar Pradesh. For emergency procurements in accordance with the Manual for Procurements 2017, single bids and reducing bidding times are characteristic. Therefore we can conclude that atleast some portion of tenders from Maharashtra were emergency procurements. 
+
+(Insert figure)
+
+We then used keywords and pattern matching to extract only health/covid related tenders (given below) from the list. We ended up with around 3000 tenders. Interestingly, in addition to the states mentioned earlier, Assam had a large number of medical/covid-19 related tenders.
+
+

@@ -23,6 +23,9 @@ aoc_merge_rem_dup$e.Published.Date <- as.Date(aoc_merge_rem_dup$e.Published.Date
 aoc_merge_rem_dup$Contract.Date <- as.Date(aoc_merge_rem_dup$Contract.Date, 
                                            format="%d-%b-%Y")
 
+aoc_merge_rem_dup <- aoc_merge_rem_dup %>% 
+  rename(Tender_ID = Tender.ID)
+
 aoc_merge_state2 <- aoc_merge_rem_dup %>% group_by(State.Name, Tender.Type) %>% 
   summarise(total=sum(Contract.Value, na.rm = TRUE))
 
