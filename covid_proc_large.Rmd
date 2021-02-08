@@ -141,7 +141,7 @@ results_no_duplicates %>% ggplot(aes(x=State_name, fill = day_category)) +
 ## Next I will create smaller datasets for specific usecases. The following is a table for words related to health and covid. Isolating all procurements associated with the keywords will give us a subset of health and covid related procurements. (Note: while health is a general enough term, I have taken caution not to include sanitation under this. Health in this case will only comprise of acute/chronic hospital related procurements not general sanitation or food/nutrition)
 
 ```{r pattern, echo=FALSE}
-patterns <-data.frame(word = c("Medical", "Hospital", "PHC", "CHC", "Health", "covid", "COVID", "medicine", "drugs", "liquid", "ambulance",  "microscope", "chemistry", "radiograph", "biomedical", "lab", "laboratory", "dispensary", "Anganwadi", "DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP","crematorium","DNASTAR","mortem","paediatric","MCH","Smashanbhumi","Shmashanbhumi","smashan bhumi","OPD","HFW","ICDS","RT-PCR", "corona","anganwari","NHM","TCL","Advia","Oxygen","HCG","AWC","DGPCS"))
+patterns <-data.frame(word = c("Medical", "Hospital", "PHC", "CHC", "Health", "covid", "COVID", "medicine", "drugs", "liquid", "ambulance",  "microscope", "chemistry", "radiograph", "biomedical", "laboratory", "dispensary", "Anganwadi","DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP","crematorium","DNASTAR","mortem","paediatric","MCH","Smashanbhumi","Shmashanbhumi","smashan bhumi","OPD","HFW","ICDS","RT-PCR", "corona","anganwari","NHM","Advia","Oxygen","HCG","AWC","DGPCS"))
 
 #pattern_match <- data.frame(word = c("Medical","Hospital","PHC","CHC","Health","covid","medicine","drugs","liquid", "ambulance","microscope","chemistry", "radiograph","biomedical","lab","laboratory","dispensary","Anganwadi","DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP", "crematorium", "DNASTAR","mortem", "paediatric", "HWC", "MCH", "Smashanbhumi", "Shmashanbhumi", "smashan bhumi", "OPD", "HFW", "ICDS","RT-PCR","corona","anganwari","NHM", "TCL","Advia","Oxygen","HCG","AWC","DGPCS"), matching = c("1l", "2", "3", "4","5", "6", "7", "8", "9", "10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","21","32","33","34","35","36", "37", "38","39","40","41", "42", "43", "44", "45", "46", "47", "48"))
 
@@ -151,6 +151,8 @@ newtable <- results_no_duplicates %>%
 
 newtable %>% 
   filter(!grepl('Veterinary', Title_description))
+
+#supply, construction,maintanence, repair, up-gradation, upgradation, Improvement, Installation, Labour, facility, printing, work, outsource, manpower, const, Reconstruction, handling, service, providing, purchase, strenghthening, painting, road?,replacing, training,transport, Running, nirman, establishment, renovation, 
 
 ## Different ways to add keywords. The non-commented out one works best (need to figure out how to add more than 1 key word)
 #newtable <- newtable%>% 
@@ -176,6 +178,11 @@ newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"Pae
 toMatch<-c("^ICDS","^JSSK", "^ICDS","^RBSK", "^NHM", "^KASP", "^DGPCS", "^DHS")
 newtable$keywords<-as.character(newtable$keywords)
 newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"Schemes"
+
+
+toMatch<-c("^covid","^COVID", "^corona","^cylinder", "^oxygen", "^DNASTAR", "^RT-PCR", "^liquid", "^drugs", "^crematorium", "^Smashanbhumi", "^Shmashanbhumi","^smashan bhumi","^OPD", "^Advia")
+newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"COVID"
 
 Q <- quantile(newtable$number_days, probs=c(.5, .9), na.rm = FALSE)
 
