@@ -34,6 +34,9 @@ results_4 <- as.tibble(read.csv("results_all_records_table_4.csv",row.names = NU
 results_extra <- as.tibble(read.csv("results_all_records_table_extra.csv", 
                            row.names = NULL, stringsAsFactors = FALSE))
 
+results_covid <- as_tibble(read.csv("Result_state_tenders.csv", 
+                                    row.names = NULL, stringsAsFactors = FALSE))
+
 ## merge the four files with rbind
 results_total_merge<- rbind(results_1,results_1a,results_2,results_3,results_4, results_extra)
 
@@ -59,6 +62,19 @@ results_total_merge_clean <- results_total_merge_clean %>%
     Tender_ID = State.Name
     )
 
+results_covid <- results_covid %>% rename (
+    Sno= S.No.,
+    award_date = AOC.Date,
+    Published_date = e.Published.Date,
+    Title_description = Title.and.Ref.No..Tender.Id, 
+    State_name = State.Name, 
+    worktype = Type.of.work, 
+    Purchase_classification = What.is.it, 
+    Number_bids = Number.of.bids, 
+    Bid_winner = Bid.winner)
+
+results_covid$Purchase_classification <- toupper(results_covid$Purchase_classification)
+
 ## Make dates into date format
 results_total_merge_clean$award_date <- as.Date(results_total_merge_clean$award_date, 
                                                 format="%d-%b-%Y")
@@ -66,8 +82,23 @@ results_total_merge_clean$award_date <- as.Date(results_total_merge_clean$award_
 results_total_merge_clean$Published_date <- as.Date(results_total_merge_clean$Published_date, 
                                                     format="%d-%b-%Y")
 
+
+results_covid$award_date <- as.Date(results_covid$award_date, 
+                                                format="%d-%b-%Y")
+
+results_covid$Published_date <- as.Date(results_covid$Published_date, 
+                                                format="%d-%b-%Y")
 ##remove duplicates
 results_no_duplicates <- results_total_merge_clean [!duplicated(results_total_merge_clean[c(4,6)]),]
+
+##Clean the tender description into two parts - tender name and ref number and org id
+results_covid <- results_covid %>% separate (Title_description, into = c("Title_name","Ref_ID"), sep = "\\/", extra = "merge")
+
+results_covid <- results_covid %>% 
+   separate(Ref_ID, into = c("Ref", "Tender ID"), sep="/(?=[^/]+$)")
+
+results_covid<- subset(results_covid, select = -c(13:22))
+
 ```
 
 ## Initial look
@@ -80,25 +111,91 @@ We can have an initial look at the data that we have cleaned so far. For example
 tender_number <- results_no_duplicates %>% group_by(State_name) %>% tally()
 head(tender_number[order(tender_number$n, decreasing = TRUE),])
 
+results_covid_state<- results_covid%>% group_by(State_name) %>% tally()
+head(results_covid_state[order(results_covid_state$n, decreasing = TRUE),])
+
+results_covid_cost<- results_covid%>% group_by(State_name) %>% summarise (total = sum(as.numeric(Amount), na.rm = TRUE))
+head(results_covid_cost[order(results_covid_cost$total, decreasing = TRUE),])
+
+## Summary: We have seen the top 10 covid procuring states by number of procurements and amounts. Mahrashtra has spent half as much on 127 procurements as Madhya Pradesh did on 9. However, many of the awards information for procurements have not been inputted correctly. Some of them have mentioned a single line items price but not the price for supplying that item for the year. This could bring in some degree of error
+
 ## Here we are creating a simple bar plot with counts for each state
 results_no_duplicates %>% ggplot(aes(x = State_name))+ 
   geom_bar ()+
   theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot1 <- results_covid %>% ggplot(aes(x = State_name))+ 
+  geom_bar ()+
+  theme(axis.text.x = element_text(size = 6, angle = 90))
+plot1
 
 #Here we have calculated the number of days between the published and awarded date
 results_no_duplicates$number_days<-
   as.numeric(difftime (results_no_duplicates$award_date, 
                        results_no_duplicates$Published_date,units = c("days")))
 
+
+results_covid$number_days <- as.numeric(difftime (results_covid$award_date, 
+                       results_covid$Published_date,units = c("days")))
+
 ## we are now trying to create a stacked box plot to see the difference in days taken
 results_no_duplicates %>% ggplot(aes(x = State_name, fill = number_days))+ 
   geom_bar ()+
   theme(axis.text.x = element_text(size = 6, angle = 90))
 
+plot2 <- results_covid %>% ggplot(aes(x=State_name, fill = number_days))+  
+  geom_bar ()+
+  theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot2
+
+##Summary: Not a great way to visualize the variation in days or number of bidders. so lets make a box plot instead
 ## Since the variation in the other plot is so big, lets make a box plot and see how it looks
 
 results_no_duplicates %>% ggplot(aes(x=State_name, y=number_days)) + 
   geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot3 <- results_covid %>% ggplot(aes(x=State_name, y=number_days)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+
+plot4 <- results_covid %>% ggplot(aes(x=State_name, y=Number_bids)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## Summary: Here it is clearly seen that while some states have number of days for procurement as less than 100, with chandigarh and delhi around 25 days. Other states such as Assam, Haryana have mean procurements days stretching up to a 150. While most states have a similar number of bidders per tender hovering around 2. There are some states that perform slightly better like punjab and delhi which have about 7-8 bids per tender. 
+
+##We will now do similar calculations with type of tender
+plot5 <- results_covid %>% ggplot(aes(x=worktype, y=number_days)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+plot6 <- results_covid %>% ggplot(aes(x=worktype, y=Number_bids)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## Summary: Interestingly tenders around services seems to be concluded the fastest at a mean 50 days while works are slightly more and goods are highest. Though there are more exceptions in works. This may not be a significant difference. (could check). Services and goods also seem to have the most number of bidders followed by works.
+results_covid$Purchase_classification <- gsub('COVID ALLIED WORK', 'COVID ALLIED',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID PREVENTIOB', 'COVID PREVENTION',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID MEDICATION', 'COVID TREATMENT',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID MANAGEMNT', 'COVID INFORMATION',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID HCW - DIET', 'COVID HCW',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID WARD - PREGNANT WOMEN', 'COVID WARD -WOMEN',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID WARD -WOMEN', 'COVID WARD - WOMEN',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID TESTING', 'COVID DETECTION',results_covid$Purchase_classification)
+
+results_covid$Purchase_classification <- gsub('COVID ROAD', 'COVID ALLIED',results_covid$Purchase_classification)
+
+
+plot7 <- results_covid %>% ggplot(aes(x=Purchase_classification, y=Number_bids)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+plot8 <- results_covid %>% ggplot(aes(x=Purchase_classification, y=number_days)) + 
+  geom_boxplot() + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## When we look at the classification of covid tasks, covid allied work took the most number of days for contracts followed by covid informational tasks. Tenders involving covid body removal and diet and health care workers took the least amount of time for award of contract. Covid diet and covid detection had more number of bidders per tender.
 
 ## There seems to be quite a bit of variation, so i will be identifying the outliers to eliminate
 Q <- quantile(results_no_duplicates$number_days, probs=c(.5, .9), na.rm = FALSE)
