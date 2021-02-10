@@ -197,6 +197,27 @@ plot8 <- results_covid %>% ggplot(aes(x=Purchase_classification, y=number_days))
 
 ## When we look at the classification of covid tasks, covid allied work took the most number of days for contracts followed by covid informational tasks. Tenders involving covid body removal and diet and health care workers took the least amount of time for award of contract. Covid diet and covid detection had more number of bidders per tender.
 
+## Now I will cut the year up into three parts 
+results_covid <- 
+  results_covid %>% 
+  separate(col = Published_date, into = c('yr', 'mnth', 'dy'), sep = '-', convert = TRUE, remove = FALSE)
+
+results_covid <- 
+  results_covid %>% 
+  # make quarters
+results_covid <- 
+  results_covid %>% 
+  mutate(
+    quarter = case_when(
+      mnth >= 6 & mnth <= 8 ~ 'Q1'
+      , mnth >= 9 & mnth <= 10 ~ 'Q2'
+      , mnth >=  11 & mnth <= 1 ~ 'Q3'))
+
+results_covid_grp <-  results_covid %>% group_by(mnth, Purchase_classification) %>% summarise (total = sum(as.numeric(Amount), na.rm = TRUE))
+
+plot9 <- results_covid_grp %>% ggplot(aes(x=mnth, y=total, fill = Purchase_classification)) + 
+  geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
 ## There seems to be quite a bit of variation, so i will be identifying the outliers to eliminate
 Q <- quantile(results_no_duplicates$number_days, probs=c(.5, .9), na.rm = FALSE)
 
