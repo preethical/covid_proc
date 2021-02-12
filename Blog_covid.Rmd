@@ -8,21 +8,45 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-## Covid Blog
+## A brief analysis of India's Public Procurement during COVID-19  
 
-In an attempt to create soem standardization across different platforms within the National eGovernance Platforms (NeGP), Ministry of Electronics and Information Technology, MeitY collated a list of mission mode projects which on one specific aspect of electronic governance like health, education etc. eProcurements is one such MMP in an attempt to simplify, digitize eprocurements and create more transparency. The Standing  Finance  Committee  decided that the Government  eProcurement  Solution  of National  Informatics  Centre  (GePNIC) platform would  be  used as  National  eProcurement  Portal  for rollout in 23 States and UTs over two years. The National  Informatics Centre (NIC) was been given the   responsibility for setting up this ccommon portal for dissemination of Information. The GePNIC system was created in 2007 and even now not all states have moved to it (There are 5 states/UTs that still have different tendering systems). Further not all procurements get published publicly. Most states have their own standards for when to publish a procurement online. For example: many states don't publish procurements less than 5 lakh rupees. This would account for almost 40% of the tenders in many states. All of this coupled with no standards on the data that is actually published makes analyzing this data very difficult. And Analyzing this data becomes exceptionally important when faced with a massive global health crisis on stretched resources and very diverse needs. 
+The world over, the COVID-19 pandemic has really brought all eyes on the way a government’s finances work: how it allocates funds and how it buys goods and services. In India, during the last financial year, different departments in the government were procuring fast and sometimes without required safeguards. This has resulted in large purchases being made without the required transparency, cost-efficiency and competition. As with almost every issue that has been exacerbated during the pandemic, it has revealed weaknesses inherent within public procurements in our nation and has raised relevant concerns about the lack of transparency and accountability in government finances. And with a little scrutiny, it becomes apparent that the structures in place for transparency and accountability within public procurements does not hold up. We will now go through what is already in place, what falls through and finally how things can change. 
 
-Which is exactly what happened about one year ago, when the first COVID-19 case was identified in Kerala. In three months the country would go into a complete lockdown and attempt to spend the ~1.5% of its GDP allocated toward health in the most efficient manner. This is a small study analyzing the public procurements during that time. We scrapped the awards data from the mission mode portal (which is portal published by the Indian Government which reconciles all the state eprocurements that are on the GePNIC platform)
-Suprisingly there were fewer public procurements floated for the year 2020 compared to the years before. 
-(insert graph). 
-Intererstingly, as soon as the country went into a lock-down in March, there was a huge increase in the number of tenders floated compared to the year before and this kept up until May when the lockdown was lifted.
+### What is already in place? 
+
+Historically in India, while there has been no comprehensive piece of legislation on public procurements, it has been covered in part by other Acts like the Contract Act of 1872, the Sale of Goods Act from 1930, the 1988 Prevention of Corruption Act, and the Arbitration and Conciliation Act in 1996. Around 2017, there have however been some comprehensive administrative directives detailing the process around public procurements in the General Financial Rules which was amended in 2017, the Manual for Procurement of Goods which was put in place in 2017 and the Public Procurement Order in 2017 which specifically grants purchase preference to local suppliers based on certain conditions so as to promote manufacturing and production of goods and services in India. Additionally, some states like Tamil Nadu, Karnataka, and more recently Assam have published their own Public Procurement Policies to help streamline the process. 
+To keep a check on these administrative practices are certain commissions like the Central Vigilance Commission, Central Investigation Bureau and the Competition Commission of India. However, regulation is still wanting. 
+In an attempt to create some standardization across different platforms, the National e-Governance Plan (NeGP) was created. An initiative set up by the GoI to make all government services available to citizens online. The NeGP approved 44 Mission Mode Projects (which was defined as an individual project that focused  on one aspect of electronic governance). These were central, state and integrated projects. They also published Meta data and data standards or MDDS an official document describing the standards for common metadata as part of India's National e-Governance Plan. The national GeM (Government e-Marketplace), CPPP (Central Public Procurement Portal), and e-Procurement systems laid some groundwork for simplify and digitize procurement through technological solutions.
+The Standing  Finance  Committee  decided that the Government  eProcurement  Solution  of National  Informatics  Centre  (GePNIC) platform would  be  used as  National  eProcurement  Portal for roll-out in 23 States and UTs over two years. The National  Informatics Centre (NIC) was given the responsibility for setting up this common portal.
+
+## What falls through the cracks
+
+However, these procurements do not hold up in practice. The GePNIC system was created in 2007 and even now not all states have moved to it (There are 5 states/UTs that still have different tendering systems).
+
+Mandatory publishing of e-procurements in accordance with the Manual of Procurement of Goods usually happens only for tenders valued above 2 lakh rs (3000 USD) and so, often more number of smaller contracts are created so they do not need to be published online. One account of the number of public tenders that are not published in the open is on the order of 40% of the total number of tenders.
+
+The Manual for Procurements and General Financial Rules have guidelines in place for emergency procurements including skipping of various bidder qualification steps, creation of ad-hoc contracts with suppliers, acceptance of single bid tenders, and reduced time given for bid-submission. Specific ministries were exempted to spend under the budget head - Relief on account of natural calamity for upto 200 crores rs. However, despite the pressure to procure fast, these are likely to have large repercussions later on. And it becomes of utmost importance emergency procurements be public and open in order to avoid price gouging, manage critical supply chains and create more trust with citizens. 
+
+Added to this, there are various other challenges that impede our ability as citizens to hold our governments accountable for the purchases they make, namely the data on procurement are not easily and timely available in formats that can be analyzed to reduce corruption, increase cost efficiency and competition and the data that is available is sub-par 
+
+## Analysis of Public Covid Related Procurements
+
+Analyzing this data becomes exceptionally important to understand and correct the economics of a country. Public procurements have been time and again accused of being one of the main sources of corruption and this is even more true with health related procurements. Now, more than ever, it becomes imperative that we observe the way our elected officials and officers are spending especially when faced with a massive global health crisis on stretched resources and very diverse needs. One year ago, when the first COVID-19 case was identified in Kerala. In three months the country would go into a complete lock-down and attempt to spend the ~1.5% of its GDP allocated toward health in the most efficient manner. This is a small study analyzing the public procurements during that time. We scrapped the awards data from the mission mode portal (which is portal published by the Indian Government which reconciles all the state eprocurement that are on the GePNIC platform)
+
+Public Procurements account for more than 30% of the total government budget every year. This year, there were 5 lakh (0.5 million) fewer tenders published compared to last which accounted for a difference of only about 1 lakh crores rupees. This indicates that on average tenders cost a lot more this year compared to the years before.
+(insert graph) 
+
+
+Of the 10 lakh published tenders, there were around 2 lakh contracts that were actually awarded, of which 1 lakh were awarded by the center and 1 lakh through the states. 
+(draw a network diagram)
+
+The top 10 most expensive contracts for last year are mentioned below. Five of the 10 contracts were awarded for distribution of alcohol in that state. (insert graph). One common characteristic that can be observed across all years is that most of the tenders (>82%) floated every year is by the Public Works Department (PWD) and toward construction and maintenance. This is possibly because tenders for construction tend to be large and therefore more likely to pass the minimum required amount before it must be published online.
 (Insert Graph)
-Most years and over the past year more than 82% of the total tenders floated are for works like construction and maintenance. This is likely because tenders for construction tend to be large and therefore more likely to pass the minimum required amount before it must be published online.
-(Insert Graph)
-However more than half of the 10 most expensive tenders awarded this past year were for distribution of alcohol 
-(Insert Table/ Figure)
-In our analysis, we studied around 40,000 tenders which were published and awarded across the country from the 3rd of March until the end of the year (25th of December). 
 
+One common characteristic that can be observed across all years is that most of the tenders (>82%) floated every year is by the Public Works Department (PWD) and toward construction and maintenance. This is possibly because tenders for construction tend to be large and therefore more likely to pass the minimum required amount before it must be published online.
+(Insert Graph)
+
+In our analysis, we started with about 40,000 tenders which were awarded across the country from the 3rd of March until the end of the year (25th of December). 
 While Uttar Pradesh has the most number of tenders published online, last year for the time period mentioned above: Mahrashtra closely followed by Kerala had the most number of tenders awarded. 
 (Insert figure)
 
@@ -30,6 +54,6 @@ There was a large amount of variance in the number of days that a tender was flo
 
 (Insert figure)
 
-We then used keywords and pattern matching to extract only health/covid related tenders (given below) from the list. We ended up with around 3000 tenders. Interestingly, in addition to the states mentioned earlier, Assam had a large number of medical/covid-19 related tenders.
+We then used keywords (attached in appendix 1) to extract only health/covid related tenders (given below) from the list. We ended up with around 3000 tenders. Interestingly, in addition to the states mentioned earlier, Assam had a large number of medical/covid-19 related tenders.
 
 
