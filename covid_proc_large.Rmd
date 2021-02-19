@@ -37,6 +37,9 @@ results_extra <- as.tibble(read.csv("results_all_records_table_extra.csv",
 results_covid <- as_tibble(read.csv("Result_state_tenders.csv", 
                                     row.names = NULL, stringsAsFactors = FALSE))
 
+central_covid <- as_tibble(read.csv("Central_tenders.csv", 
+                                    row.names = NULL, stringsAsFactors = FALSE))
+
 ## merge the four files with rbind
 results_total_merge<- rbind(results_1,results_1a,results_2,results_3,results_4, results_extra)
 
@@ -73,6 +76,20 @@ results_covid <- results_covid %>% rename (
     Number_bids = Number.of.bids, 
     Bid_winner = Bid.winner)
 
+central_covid <- central_covid %>% rename (
+    Sno= Sno,
+    award_date = AOC.date,
+    Published_date = Published.date,
+    Title_description = Tender.description, 
+    State_name = Org.name, 
+    worktype = Type.of.Work, 
+    Purchase_classification = Purchase.type, 
+    Contract_value = Contract.value,
+    Bid_winner = Supplier,
+    Number_bids = Number.of.bids)
+
+central_covid$Purchase_classification <- toupper(central_covid$Purchase_classification)
+
 results_covid$Purchase_classification <- toupper(results_covid$Purchase_classification)
 
 ## Make dates into date format
@@ -88,6 +105,10 @@ results_covid$award_date <- as.Date(results_covid$award_date,
 
 results_covid$Published_date <- as.Date(results_covid$Published_date, 
                                                 format="%d-%b-%Y")
+
+central_covid$award_date <- as.Date(central_covid$award_date, format="%d-%b-%Y")
+central_covid$Published_date <- as.Date(central_covid$Published_date, format="%d-%b-%Y")
+ 
 ##remove duplicates
 results_no_duplicates <- results_total_merge_clean [!duplicated(results_total_merge_clean[c(4,6)]),]
 
