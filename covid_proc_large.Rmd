@@ -223,8 +223,7 @@ results_covid <-
   results_covid %>% 
   separate(col = Published_date, into = c('yr', 'mnth', 'dy'), sep = '-', convert = TRUE, remove = FALSE)
 
-results_covid <- 
-  results_covid %>% 
+
   # make quarters
 results_covid <- 
   results_covid %>% 
@@ -366,9 +365,18 @@ newtable %>% ggplot(aes(x=Month, fill = day_category)) +
   geom_bar() +theme(axis.text.x = element_text(size = 6, angle = 90))
 
 newtable_sep <-  newtable %>% group_by(State_name, keywords) %>% tally()
+newtable_mnth <-  newtable %>% group_by(Month, keywords) %>% tally()
+newtable_number <- newtable %>% group_by(number_days, keywords) %>% tally()
 
 plot_newtable <- newtable_sep %>% ggplot(aes(x=State_name, y=n, fill = keywords)) + 
   geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_newtable1 <- newtable_mnth %>% ggplot(aes(x=Month, y=n, fill = keywords)) + 
+  geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_newtable2 <- newtable_number %>% ggplot(aes(x=number_days, y=n, fill = keywords)) + 
+  geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
 
 ##next need to remove hwc if in haryana
 
