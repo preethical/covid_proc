@@ -138,7 +138,7 @@ head(results_covid_state[order(results_covid_state$n, decreasing = TRUE),])
 results_covid_cost<- results_covid%>% group_by(State_name) %>% summarise (total = sum(as.numeric(Amount), na.rm = TRUE))
 head(results_covid_cost[order(results_covid_cost$total, decreasing = TRUE),])
 
-## Summary: We have seen the top 10 covid procuring states by number of procurements and amounts. Mahrashtra has spent half as much on 127 procurements as Madhya Pradesh did on 9. However, many of the awards information for procurements have not been inputted correctly. Some of them have mentioned a single line items price but not the price for supplying that item for the year. This could bring in some degree of error
+## Summary: We have seen the top 10 covid procuring states by number of procurements and amounts. Maharashtra has spent half as much on 127 procurements as Madhya Pradesh did on 9. However, many of the awards information for procurements have not been inputted correctly. Some of them have mentioned a single line items price but not the price for supplying that item for the year. This could bring in some degree of error
 
 ## Here we are creating a simple bar plot with counts for each state
 results_no_duplicates %>% ggplot(aes(x = State_name))+ 
@@ -280,16 +280,16 @@ results_no_duplicates %>% ggplot(aes(x=State_name, fill = day_category)) +
 ## Next I will create smaller datasets for specific usecases. The following is a table for words related to health and covid. Isolating all procurements associated with the keywords will give us a subset of health and covid related procurements. (Note: while health is a general enough term, I have taken caution not to include sanitation under this. Health in this case will only comprise of acute/chronic hospital related procurements not general sanitation or food/nutrition)
 
 ```{r pattern, echo=FALSE}
-patterns <-data.frame(word = c("Medical", "Hospital", "PHC", "CHC", "Health", "covid", "COVID", "medicine", "drugs", "liquid", "ambulance",  "microscope", "chemistry", "radiograph", "biomedical", "laboratory", "dispensary", "Anganwadi","DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP","crematorium","DNASTAR","mortem","paediatric","MCH","Smashanbhumi","Shmashanbhumi","smashan bhumi","OPD","HFW","ICDS","RT-PCR", "corona","anganwari","NHM","Advia","Oxygen","HCG","AWC","DGPCS"))
+patterns <-data.frame(word = c("Medical", "Hospital", "PHC", "CHC", "Health", "covid", "COVID", "medicine", "drugs", "liquid", "ambulance",  "microscope", "chemistry", "radiograph", "biomedical", "laboratory", "dispensary", "Anganwadi","DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP","crematorium","mortem","paediatric","^MCH","Smashanbhumi","Shmashanbhumi","smashan bhumi","HFW","ICDS","RT-PCR","PPE","corona","anganwari","NHM","Advia","Oxygen","^HCG","AWC$","mask"))
 
 #pattern_match <- data.frame(word = c("Medical","Hospital","PHC","CHC","Health","covid","medicine","drugs","liquid", "ambulance","microscope","chemistry", "radiograph","biomedical","lab","laboratory","dispensary","Anganwadi","DHS","subcentre", "ANM", "sub centre", "HWC", "RBSK", "JSSK", "KASP", "crematorium", "DNASTAR","mortem", "paediatric", "HWC", "MCH", "Smashanbhumi", "Shmashanbhumi", "smashan bhumi", "OPD", "HFW", "ICDS","RT-PCR","corona","anganwari","NHM", "TCL","Advia","Oxygen","HCG","AWC","DGPCS"), matching = c("1l", "2", "3", "4","5", "6", "7", "8", "9", "10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","21","32","33","34","35","36", "37", "38","39","40","41", "42", "43", "44", "45", "46", "47", "48"))
 
   
 newtable <- results_no_duplicates %>% 
-  filter_all(any_vars(str_detect(.,paste(patterns$word, collapse = "|"))))
+ filter_all(any_vars(str_detect(.,paste(patterns$word, collapse = "|"))))
 
-newtable %>% 
-  filter(!grepl('Veterinary', Title_description))
+newtable <- newtable %>% 
+  filter(!grepl("Vet",Title_description))
 
 #supply, construction,maintanence, repair, up-gradation, upgradation, Improvement, Installation, Labour, facility, printing, work, outsource, manpower, const, Reconstruction, handling, service, providing, purchase, strenghthening, painting, road?,replacing, training,transport, Running, nirman, establishment, renovation, 
 
@@ -304,24 +304,36 @@ newtable %>%
 #results_no_duplicates$newcol <- results_no_duplicates %>% 
 #paste(any_vars(str_detect(.,paste(patterns$word, collapse = "|"))))
 
-newtable$keywords <- str_extract(newtable$Title_description, str_flatten(patterns$word, "|"))
+#newtable$keywords <- str_extract(newtable$Title_description, str_flatten(patterns$word, "|"))
 
-toMatch<-c("^health","^hospital", "^PHC", "^CHC", "^Hospital", "^subcentre", "^HWC")
-newtable$keywords<-as.character(newtable$keywords)
-newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"Hospital"
+toMatch<-c("health","hospital", "PHC", "CHC", "Hospital", "subcentre", "sub centre", "^SC$", "HWC", 
+           "sub centre", "ambulance", "medical", "medicine", "Sub Centre","diet", "^DHS", "^DMC", "Health", "Medical", "Suswasthya", "DIETARY", "HEALTH","\\bKASP\\b","\\bDHS\\b", "Food", "surgical", "drugs, Anesthesia", "ICU", "DIALYSIS", "Ayushman", "AYUSHMAN", "P.H.C","MEDICAL", "Sub Centers", "SUB CENTER", "HOSPITALS", "Medicine", "DOCTOR", "HOSPITAL", "Mammography", "MEDICINE", "Diet", "Med", "Tepania", "Canteen", "canteen")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description),"keywords"]<-"Health Care Centres"
 
-toMatch<-c("^ANM","^anganwari", "^Anganwadi","^AWC", "^paediatric")
-newtable$keywords<-as.character(newtable$keywords)
-newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"Paediatric"
+toMatch<-c("chemistry", "College","Department", "//bMCH//b", "laboratary", "COLLEGE", "laboratory")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description ),"keywords"]<-"Medical College"
 
-toMatch<-c("^ICDS","^JSSK", "^ICDS","^RBSK", "^NHM", "^KASP", "^DGPCS", "^DHS")
-newtable$keywords<-as.character(newtable$keywords)
-newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"Schemes"
+toMatch<-c("\\bANM\\b","^anganwari", "Anganwadi","\\bAWC\\b", "^paediatric", "MOTHER", "CHILD", "ANGANWARI", "ASHA", "\\bICDS\\b","\\bJSSK\\b","\\bRBSK\\b", "AGANWADI")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description ),"keywords"]<-"Paediatric"
 
+toMatch<-c("Water", "WATER","^air$", "^Air$", "water", "TUBEWELL", "HANDPUMP", "Jal Jeevan")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description ),"keywords"]<-"Water & Air Quality"
 
-toMatch<-c("^covid","^COVID", "^corona","^cylinder", "^oxygen", "^DNASTAR", "^RT-PCR", "^liquid", "^drugs", "^crematorium", "^Smashanbhumi", "^Shmashanbhumi","^smashan bhumi","^OPD", "^Advia")
-newtable$keywords<-as.character(newtable$keywords)
-newtable[grepl(paste(toMatch,collapse="|"),newtable$keywords ),"keywords"]<-"COVID"
+toMatch<-c("crematorium", "Smashanbhumi", "Shmashanbhumi","^smashan bhumi","^dead", "mortem", "Mortuary")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description ),"keywords"]<-"Death"
+
+toMatch<-c("^covid", "^corona","^cylinder", "^oxygen","^RT-PCR", "^liquid","\\bPPE\\b","^mask", "^drugs","^Advia", "Sanitizer", "DISINFECTANT", "masks", "mask", "Hypochlorite", "COVID", "Covid", "Corona", "CORONA", "Isolation", "isolation", "quaranti", "Quaranti", "Quarenti", "quarenti", "Oxygen", "OXYGEN", "covid-19", "corona", "RT-PCR", "RTPCR", "VTM", "oxygen")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description),"keywords"]<-"COVID"
+
+toMatch<-c("Stationary","OUTSOURCE", "FURNITURE", "Computer", "Laptop", "Photocopy", "PRINTERS", "vehicle", "Vehicle", "House Keeping", "Recruitment", "Printing")
+#newtable$keywords<-as.character(newtable$keywords)
+newtable[grepl(paste(toMatch,collapse="|"),newtable$Title_description),"keywords"]<- "Allied"
 
 Q <- quantile(newtable$number_days, probs=c(.5, .9), na.rm = FALSE)
 
@@ -353,5 +365,13 @@ newtable$Month <- format(as.Date(newtable$Published_date, "%Y/%m/%d"), "%m")
 newtable %>% ggplot(aes(x=Month, fill = day_category)) + 
   geom_bar() +theme(axis.text.x = element_text(size = 6, angle = 90))
 
+newtable_sep <-  newtable %>% group_by(State_name, keywords) %>% tally()
+
+plot_newtable <- newtable_sep %>% ggplot(aes(x=State_name, y=n, fill = keywords)) + 
+  geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+##next need to remove hwc if in haryana
+
+write.csv2(newtable, "newtable.csv")
 ```
 
