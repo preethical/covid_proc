@@ -40,6 +40,8 @@ results_covid <- as_tibble(read.csv("Result_state_tenders.csv",
 central_covid <- as_tibble(read.csv("Central_tenders.csv", 
                                     row.names = NULL, stringsAsFactors = FALSE))
 
+lineitems <- as_tibble(read.csv("lineitems.csv", 
+                                    row.names = NULL, stringsAsFactors = FALSE))
 ## merge the four files with rbind
 results_total_merge<- rbind(results_1,results_1a,results_2,results_3,results_4, results_extra)
 
@@ -88,9 +90,24 @@ central_covid <- central_covid %>% rename (
     Bid_winner = Supplier,
     Number_bids = Number.of.bids)
 
+
+lineitems <- lineitems %>% rename (
+    award_date = AOC.Date,
+    Published_date = e.Published.Date,
+    Title_description = Title.and.Ref.No..Tender.Id, 
+    State_name = State.Name, 
+    worktype = Type.of.work, 
+    Purchase_classification = What.is.it,
+    Number_bids = Number.of.bids,
+    Contract_value = Amount,
+    Bid_winner = Bid.winner,
+    amount_per = Amount.per, 
+    Line_item = Line.Item
+    )
 central_covid$Purchase_classification <- toupper(central_covid$Purchase_classification)
 
 results_covid$Purchase_classification <- toupper(results_covid$Purchase_classification)
+
 
 ## Make dates into date format
 results_total_merge_clean$award_date <- as.Date(results_total_merge_clean$award_date, 
@@ -109,6 +126,8 @@ results_covid$Published_date <- as.Date(results_covid$Published_date,
 central_covid$award_date <- as.Date(central_covid$award_date, format="%d-%b-%Y")
 central_covid$Published_date <- as.Date(central_covid$Published_date, format="%d-%b-%Y")
  
+lineitems$award_date <- as.Date(lineitems$award_date, format="%d-%b-%Y")
+lineitems$Published_date <- as.Date(lineitems$Published_date, format="%d-%b-%Y")
 ##remove duplicates
 results_no_duplicates <- results_total_merge_clean [!duplicated(results_total_merge_clean[c(4,6)]),]
 
@@ -374,12 +393,70 @@ plot_newtable <- newtable_sep %>% ggplot(aes(x=State_name, y=n, fill = keywords)
 plot_newtable1 <- newtable_mnth %>% ggplot(aes(x=Month, y=n, fill = keywords)) + 
   geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
 
-plot_newtable2 <- newtable_number %>% ggplot(aes(x=number_days, y=n, fill = keywords)) + 
-  geom_bar(stat = "identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
+plot_newtable2 <- newtable_number %>% ggplot(aes(x=number_days, y=n, fill = keywords)) +  geom_bar(stat ="identity") + theme(axis.text.x = element_text(size = 6, angle = 90))
 
+lineitems$Month <- format(as.Date(lineitems$Published_date, "%Y/%m/%d"), "%m")
 
-##next need to remove hwc if in haryana
+##We are looking for differences for specific lineitems
 
-write.csv2(newtable, "newtable.csv")
+##RT-PCR
+lineitem_rtpcr <-subset(lineitems, Line_item == "Covid RT-PCR Test")
+
+plot_lineitem <-lineitem_rtpcr %>% ggplot(aes(x=factor(State_name), y=amount_per)) +  geom_bar(stat ="summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_mnth <-lineitem_rtpcr %>% ggplot(aes(x=factor(Month), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_numberbids <-lineitem_rtpcr %>% ggplot(aes(x=factor(Number_bids), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+##VTM
+lineitem_VTM <-subset(lineitems, Line_item == "VTM test")
+
+plot_lineitem_vtm <-lineitem_VTM %>% ggplot(aes(x=factor(State_name), y=amount_per)) +  geom_bar(stat ="summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_mnth_vtm <-lineitem_VTM %>% ggplot(aes(x=factor(Month), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_numberbids_vtm <-lineitem_VTM %>% ggplot(aes(x=factor(Number_bids), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## PPE
+lineitem_PPE <-subset(lineitems, Line_item == "PPE")
+
+plot_lineitem_PPE <-lineitem_PPE %>% ggplot(aes(x=factor(State_name), y=amount_per)) +  geom_bar(stat ="summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_mnth_PPE <-lineitem_PPE %>% ggplot(aes(x=factor(Month), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_numberbids_PPE <-lineitem_PPE %>% ggplot(aes(x=factor(Number_bids), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## N95
+lineitem_n95 <-subset(lineitems, Line_item == "N95")
+
+plot_lineitem_n95 <-lineitem_n95 %>% ggplot(aes(x=factor(State_name), y=amount_per)) +  geom_bar(stat ="summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_mnth_N95 <-lineitem_n95 %>% ggplot(aes(x=factor(Month), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_numberbids_N95 <-lineitem_n95 %>% ggplot(aes(x=factor(Number_bids), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+## IR
+lineitem_ir <-subset(lineitems, Line_item == "Infrared Thermometer")
+
+plot_lineitem_ir <-lineitem_ir %>% ggplot(aes(x=factor(State_name), y=amount_per)) +  geom_bar(stat ="summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_mnth_ir <-lineitem_ir %>% ggplot(aes(x=factor(Month), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
+
+plot_lineitem_numberbids_ir <-lineitem_ir %>% ggplot(aes(x=factor(Number_bids), y=amount_per)) +  geom_bar(stat = "summary", fun = "mean") + theme(axis.text.x = element_text(size = 6, angle = 90))
 ```
 
+
+```{r anova, echo=FALSE}
+
+#right now the numbers in each of these is low enough that significance cant be noted
+#to check if variance in amount per line item is dependant of number of bids
+
+one.way_ir <- aov(amount_per~Number_bids, data = lineitem_ir)
+summary(one.way)
+
+#to check if variance in amount per line item is dependant of number of bids and State
+two.way_ir <- aov(amount_per~Number_bids + State_name, data = lineitem_ir)
+summary(two.way)
+
+
+```
