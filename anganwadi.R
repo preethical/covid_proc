@@ -8,6 +8,8 @@ library(RColorBrewer)
 library(rgdal)
 library(ggthemes)
 library(plyr)
+library(biscale)
+library(sf)
 set.seed(8000)
 
 options(scipen =999)
@@ -19,6 +21,7 @@ coldstorage <- read.csv("storage_tenders_copy.csv",row.names = NULL,
 
 ## read the shp file
 states_shape <- readOGR("Admin2.shp")
+states_shape = st_sf(geom=states_shape)
 
 ##Clean the data
 names(coldstorage)[7] <- paste("id")
@@ -102,7 +105,7 @@ fortify_shape = fortify(states_shape, region = "ST_NM")
 vaccines_maps <- fortify_shape %>% 
   left_join(vaccines)
 
-final.plot<-vaccines_maps[(vaccines_maps$order), ]
+final.plot<- (vaccines_maps[(vaccines_maps$order), ])
 
 ggplot+ geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = perthouvaccinated),color="#FF0000", size=0.15) +
   coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 200))
@@ -118,6 +121,66 @@ ggplot() +
 ggplot() + 
   geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = ratio),color="#7f7f7f", size=0.15) +
   coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 1)) 
+
+#data <- bi_class(vaccines_maps, x = percapitavaccineavail, y = Per.100.000.1, style = "quantile", dim = 3)
+library(tidyverse)
+
+quantiles_vaccineavial<- vaccines %>%
+  pull(percapitavaccineavail) %>%
+  quantile(probs = seq(0, 1, length.out = 4))
+
+quantiles_cases<- vaccines %>%
+  pull(Per.100.000.1) %>%
+  quantile(probs = seq(0, 1, length.out = 4))
+
+bivariate_color_scale <- tibble(
+  "3 - 3" = "#3F2949", # high vaccine avail, high caseload
+  "2 - 3" = "#435786",
+  "1 - 3" = "#4885C1", # low vaccineavail, high caseload
+  "3 - 2" = "#77324C",
+  "2 - 2" = "#806A8A", # medium vacc, medium caseload
+  "1 - 2" = "#89A1C8",
+  "3 - 1" = "#AE3A4E", # high vaccineavail, low caseload
+  "2 - 1" = "#BC7C8F",
+  "1 - 1" = "#CABED0" # low vaccavail, low caseload
+) %>%
+  gather("group", "fill")
+
+
+vaccines_maps %<>%
+  mutate(
+    quantiles_vaccineavial = cut(
+      percapitavaccineavail,
+      breaks = quantiles_vaccineavial,
+      include.lowest = TRUE
+    ),
+    quantiles_cases = cut(
+      Per.100.000.1,
+      breaks = quantiles_cases,
+      include.lowest = TRUE
+    ),
+    # by pasting the factors together as numbers we match the groups defined
+    # in the tibble bivariate_color_scale
+    group = paste(
+      as.numeric(quantiles_vaccineavial), "-",
+      as.numeric(quantiles_cases)
+    )
+  ) %>%
+  # we now join the actual hex values per "group"
+  # so each municipality knows its hex value based on the his gini and avg
+  # income value
+  left_join(bivariate_color_scale, by = "group")
+
+final.plot<-st_as_sf(vaccines_maps[(vaccines_maps$order), ])
+
+ggplot() + geom_sf(data = final.plot, aes(fill = fill, color = "white", size = 0.1)) +
+  scale_alpha(name = "",range = c(0.6, 0), guide = F) + scale_fill_identity()
+
+
+ggplot() + 
+  geom_polygon(data = final.plot,aes(x = long, y = lat, group = group, fill = fill),color="white", size=0.15) +
+  coord_map() +  scale_fill_identity() + expand_limits(fill = seq(from = 0, to = 1)) 
+
 
 
 #Anganwadi
