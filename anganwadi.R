@@ -13,8 +13,8 @@ set.seed(8000)
 options(scipen =999)
 ## Read csvs for the vaccinated and to be vaccinated
 
-
-coldstorage <- read.csv("Sheet 1-Table 1.csv",row.names = NULL,
+#coldstorage
+coldstorage <- read.csv("storage_tenders_copy.csv",row.names = NULL,
                         stringsAsFactors = FALSE)
 
 ## read the shp file
@@ -35,7 +35,92 @@ ggplot() +
   geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = freq),color="#7f7f7f", size=0.15) +
   coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 5))
 
+#healthcenters
 
+healthcentre1 <- read.csv("subcentre21.csv",row.names = NULL,
+                          stringsAsFactors = FALSE)
+healthcentre2 <- read.csv("health_centre_21.csv",row.names = NULL,
+                          stringsAsFactors = FALSE)
+
+healthcentre3 <- read.csv("subcentre.csv",row.names = NULL,
+                          stringsAsFactors = FALSE)
+healthcentre4 <- read.csv("health_centre.csv",row.names = NULL,
+                          stringsAsFactors = FALSE)
+
+healthcentre_merge <- rbind(healthcentre1, healthcentre2, healthcentre3, healthcentre4)
+
+healthcentre_merge_rem_dup<- 
+ healthcentre_merge[!duplicated(healthcentre_merge[c(4,3,2)]),]
+names(healthcentre_merge_rem_dup)[5] <- paste("id")
+
+healthcentre_merge_rem_dup$id <- replace(healthcentre_merge_rem_dup$id, healthcentre_merge_rem_dup$id =="Dadra and Nagar Haveli (UT)", "Dadra and Nagar Haveli and Daman and Diu")
+healthcentre_merge_rem_dup$id <- replace(healthcentre_merge_rem_dup$id, healthcentre_merge_rem_dup$id =="Puducherry UT", "Puducherry")
+healthcentre_merge_rem_dup$id <- replace(healthcentre_merge_rem_dup$id, healthcentre_merge_rem_dup$id =="Uttar Pradesh", "Uttar Pradesh")
+
+newtable<- as.data.frame(count(healthcentre_merge_rem_dup$id))
+
+names(newtable)[1] <- paste("id")
+fortify_shape = fortify(states_shape, region = "ST_NM")
+health_centres <- fortify_shape %>% 
+  left_join(newtable)
+
+final.plot<-health_centres[(health_centres$order), ]
+
+ggplot() + 
+  geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = freq),color="#7f7f7f", size=0.15) +
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 5))
+
+write.csv(healthcentre_merge_rem_dup, "healthcentres.csv")
+
+
+#vaccine
+
+
+vaccines <- read.csv("tables_vaccine.csv",row.names = NULL,
+                          stringsAsFactors = FALSE, na.strings = "-")
+total_cases <- read.csv("total_cases.csv",row.names = NULL,
+                     stringsAsFactors = FALSE, skip = 1, header = TRUE)
+
+names(vaccines)[2] <- paste("id")
+names(total_cases)[1] <- paste("id")
+
+vaccines <- merge(vaccines,total_cases)
+
+vaccines$Total.doses.in.pipeline.supply[is.na(vaccines$Total.doses.in.pipeline.supply)] <- 0
+
+vaccines$perthouvaccinated <- ((vaccines$Total.consumption.including.waste - (vaccines$Percentage.wastage/vaccines$Doses.received.by.state)*100)/vaccines$Population.projection)*1000
+vaccines$percapitavaccineavail <- ((vaccines$Doses.received.by.state + vaccines$Total.doses.in.pipeline.supply)/vaccines$Population.projection)*1000
+
+vaccines$id <- replace(vaccines$id, vaccines$id =="Jammu and Kashmir", "Jammu & Kashmir")
+
+vaccines$ratio <-vaccines$Per.100.000.1/vaccines$percapitavaccineavail
+  
+  
+fortify_shape = fortify(states_shape, region = "ST_NM")
+
+
+vaccines_maps <- fortify_shape %>% 
+  left_join(vaccines)
+
+final.plot<-vaccines_maps[(vaccines_maps$order), ]
+
+ggplot+ geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = perthouvaccinated),color="#FF0000", size=0.15) +
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 200))
+
+ggplot() + 
+  geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = percapitavaccineavail),color="#7f7f7f", size=0.15) +
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 300))
+
+ggplot() + 
+  geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = Per.100.000.1),color="#7f7f7f", size=0.15) +
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 100)) + layer()
+
+ggplot() + 
+  geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = ratio),color="#7f7f7f", size=0.15) +
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 1)) 
+
+
+#Anganwadi
 anganwadi <- read.csv("anganwadi.csv",row.names = NULL,
                       stringsAsFactors = FALSE)
 
@@ -49,4 +134,4 @@ final.plot<-anganwadi_tenders[(anganwadi_tenders$order), ]
 
 ggplot() + 
   geom_polygon(data = final.plot, aes(x = long, y = lat, group = group, fill = freq),color="#7f7f7f", size=0.15) +
-  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 30))
+  coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 20))
