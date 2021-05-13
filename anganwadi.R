@@ -77,12 +77,10 @@ write.csv(healthcentre_merge_rem_dup, "healthcentres.csv")
 
 
 #vaccine
-
-
 vaccines <- read.csv("tables_vaccine.csv",row.names = NULL,
-                          stringsAsFactors = FALSE, na.strings = "-")
+                     stringsAsFactors = FALSE, na.strings = "-")
 total_cases <- read.csv("total_cases.csv",row.names = NULL,
-                     stringsAsFactors = FALSE, skip = 1, header = TRUE)
+                        stringsAsFactors = FALSE, skip = 1, header = TRUE)
 
 names(vaccines)[2] <- paste("id")
 names(total_cases)[1] <- paste("id")
@@ -97,8 +95,8 @@ vaccines$percapitavaccineavail <- ((vaccines$Doses.received.by.state + vaccines$
 vaccines$id <- replace(vaccines$id, vaccines$id =="Jammu and Kashmir", "Jammu & Kashmir")
 
 vaccines$ratio <-vaccines$Per.100.000.1/vaccines$percapitavaccineavail
-  
-  
+
+
 fortify_shape = fortify(states_shape, region = "ST_NM")
 
 
@@ -123,7 +121,7 @@ ggplot() +
   coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 1)) 
 
 #data <- bi_class(vaccines_maps, x = percapitavaccineavail, y = Per.100.000.1, style = "quantile", dim = 3)
-library(tidyverse)
+
 
 quantiles_vaccineavial<- vaccines %>%
   pull(percapitavaccineavail) %>%
@@ -146,6 +144,12 @@ bivariate_color_scale <- tibble(
 ) %>%
   gather("group", "fill")
 
+vaccines_maps <- fortify_shape %>% 
+  left_join(vaccines)
+
+vaccines_maps <- fortify_shape %>% 
+  left_join(total_cases)
+
 
 vaccines_maps %<>%
   mutate(
@@ -167,11 +171,11 @@ vaccines_maps %<>%
     )
   ) %>%
   # we now join the actual hex values per "group"
-  # so each municipality knows its hex value based on the his gini and avg
-  # income value
+  # so each municipality knows its hex value based on the vaccine availability and vaccinations
   left_join(bivariate_color_scale, by = "group")
 
-final.plot<-st_as_sf(vaccines_maps[(vaccines_maps$order), ])
+
+final.plot<-(vaccines_maps[(vaccines_maps$order), ])
 
 ggplot() + geom_sf(data = final.plot, aes(fill = fill, color = "white", size = 0.1)) +
   scale_alpha(name = "",range = c(0.6, 0), guide = F) + scale_fill_identity()
@@ -180,6 +184,8 @@ ggplot() + geom_sf(data = final.plot, aes(fill = fill, color = "white", size = 0
 ggplot() + 
   geom_polygon(data = final.plot,aes(x = long, y = lat, group = group, fill = fill),color="white", size=0.15) +
   coord_map() +  scale_fill_identity() + expand_limits(fill = seq(from = 0, to = 1)) 
+
+
 
 
 
