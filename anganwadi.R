@@ -40,18 +40,22 @@ ggplot() +
 
 #healthcenters
 
-healthcentre1 <- read.csv("subcentre21.csv",row.names = NULL,
+healthcentre1 <- read.csv("output_health_21.csv",row.names = NULL,
                           stringsAsFactors = FALSE)
-healthcentre2 <- read.csv("health_centre_21.csv",row.names = NULL,
+healthcentre2 <- read.csv("outputhealth_active.csv",row.names = NULL,
                           stringsAsFactors = FALSE)
+
+healthcentre_5 <- read.csv("output_health_20.csv", row.names = NULL,
+                           stringsAsFactors = FALSE)
 
 healthcentre3 <- read.csv("subcentre.csv",row.names = NULL,
                           stringsAsFactors = FALSE)
 healthcentre4 <- read.csv("health_centre.csv",row.names = NULL,
                           stringsAsFactors = FALSE)
 
-healthcentre_merge <- rbind(healthcentre1, healthcentre2, healthcentre3, healthcentre4)
+healthcentre_merge <- rbind(healthcentre1,healthcentre3, healthcentre4, healthcentre_5)
 
+health<- healthcentre2[!duplicated(healthcentre2[c(4,3,2)]),]
 healthcentre_merge_rem_dup<- 
  healthcentre_merge[!duplicated(healthcentre_merge[c(4,3,2)]),]
 names(healthcentre_merge_rem_dup)[5] <- paste("id")
@@ -74,7 +78,7 @@ ggplot() +
   coord_map() + scale_fill_continuous(labels = comma) + expand_limits(fill = seq(from = 0, to = 5))
 
 write.csv(healthcentre_merge_rem_dup, "healthcentres.csv")
-
+write.csv(health, "health_active.csv")
 
 #vaccine
 vaccines <- read.csv("tables_vaccine.csv",row.names = NULL,

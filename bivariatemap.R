@@ -24,6 +24,7 @@ vaccines <- read.csv("tables_vaccine.csv",row.names = NULL,
 total_cases <- read.csv("total_cases.csv",row.names = NULL,
                         stringsAsFactors = FALSE, skip = 1, header = TRUE)
 
+
 #make column names same
 names(vaccines)[2] <- paste("id")
 names(total_cases)[1] <- paste("id")
